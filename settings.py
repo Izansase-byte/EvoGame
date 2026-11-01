@@ -1,3 +1,5 @@
+VERSION = '0.5a'
+
 #Screen
 WIDTH = 1000
 HEIGHT = 700
@@ -31,8 +33,8 @@ SEASON_DURATION = 30
 
 SEASONS = [
     ('Primavera', 0.25),
-    ('Verano', 0,5),
-    ('Otoño', 1)
+    ('Verano', 0.5),
+    ('Otoño', 1),
     ('Invierno', 2)
 ]
 
