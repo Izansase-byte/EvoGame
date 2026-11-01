@@ -43,6 +43,42 @@ def draw_population_chart(screen, history, font, metric='population',title='Popu
         panel, (140, 140, 140), (left,bottom), (right, bottom)
     )
     
+    season_colors = {
+        'Primavera': (100, 220, 120),
+        'Verano': (240, 210, 80),
+        'Otoño': (220, 140, 80),
+        'Invierno': (120, 180, 250)
+    }
+    
+    small_font = pygame.font.Font(None, 18)
+    previous_season = samples[0].get('season')
+    
+    for sample in samples[1:]:
+        season = sample.get('season')
+        
+        if season is not None and season != previous_season:
+            x = round(
+                left
+                + (sample['time'] - start_time)
+                / duration * (right - left)
+            )
+            
+            color = season_colors.get(season, (180, 180, 180))
+            
+            pygame.draw.line(
+                panel, color, (x, top), (x, bottom), 1
+            )
+            
+            label = small_font.render(season, True, color)
+            
+            label_x = max(
+                0,
+                min(x + 3, width - label.get_width() - 3)
+            )
+            panel.blit(label, (label_x, top - 15))
+        
+        previous_season = season
+        
     points = []
 
     for sample in samples:

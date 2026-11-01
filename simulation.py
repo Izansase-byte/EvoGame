@@ -147,6 +147,15 @@ class Simulation:
             self.stats_timer %= 1
         
     def record_stats(self):
+        
+        self.history.append({
+            'time': self.elapsed_time,
+            'population': population,
+            'average_speed': average_speed,
+            'average_vision': average_vision,
+            'season': self.season_name
+        })
+        
         population = len(self.creatures)
         
         if population > 0:
@@ -175,6 +184,7 @@ class Simulation:
             'population',
             'average_speed',
             'average_vision'
+            'season'
         ]
         
         with open(path, 'w', newline='', encoding='utf-8') as file:
