@@ -57,13 +57,33 @@ class Simulation:
             
             creature.move(dt)
             
+        for creature in self.creatures:
+            for food in self.food[:]:
+                distance = math.hypot(
+                    food['x'] - creature.x,
+                    food['y'] - creature.y
+                )
+                
+                if distance <= (
+                    settings.CREATURE_RADIUS + settings.FOOD_RADIUS
+                ):
+                    self.food.remove(food)
+                    creature.energy += settings.FOOD_ENERGY_VALUE
+            
         babies = []
         
         for creature in self.creatures:
             if creature.energy >= settings.REPRODUCTION_ENERGY_THRESHOLD:
                 creature.energy /= 2
-                babies.append(copy(creature))
+                baby = copy(creature)
                 
+                baby.speed *= random.uniform(0.9, 1.1)
+                baby.vision *= random.uniform(0.9, 1.1)
+                
+                baby.speed = max(20, min(120, baby.speed))
+                baby.vision = max(20, min(180, baby.vision))
+                
+                babies.append(baby)
         self.creatures.extend(babies)
         
         self.creatures = [

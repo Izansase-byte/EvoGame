@@ -31,4 +31,10 @@ class Creature:
             self.y = radius
             self.speed_y = abs(self.speed_y)
             
-        self.energy -= settings.ENERGY_LOSS_RATE * dt
+        cost = settings.ENERGY_LOSS_RATE * (
+            0.5
+            + 0.25 * (self.speed / settings.INITIAL_SPEED) ** 2
+            + 0.25 * (self.vision / settings.INITIAL_VISION)
+        )
+        
+        self.energy -= cost * dt
