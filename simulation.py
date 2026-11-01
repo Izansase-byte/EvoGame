@@ -7,7 +7,11 @@ import settings
 from creature import Creature
 
 class Simulation:
-    def __init__(self):
+    def __init__(self, seed=settings.RANDOM_SEED):
+        self.seed = seed
+        random.seed(seed)
+        
+        
         self.creatures = [
             Creature()
             for _ in range(settings.INITIAL_POPULATION)

@@ -1,6 +1,6 @@
 import pygame
 
-def draw_population_chart(screen, history, font):
+def draw_population_chart(screen, history, font, metric='population',title='Population'):
     if len(history) < 2:
         return
     
@@ -11,8 +11,8 @@ def draw_population_chart(screen, history, font):
     
     panel.fill((20, 25, 30, 190))
     
-    title = font.render('Things: ', True, (240, 240, 240))
-    panel.blit(title, (10,8))
+    title_surface = font.render('title', True, (240, 240, 240))
+    panel.blit(title_surface, (10,8))
     
     left = 40
     right = width - 10
@@ -27,10 +27,13 @@ def draw_population_chart(screen, history, font):
     if duration <= 0:
         return
 
-    max_population = max(
-        1,
-        max(sample['population'] for sample in samples)
-    )
+    values = [
+        sample[metric]
+        for sample in samples
+        if sample[metric] is not None
+    ]
+    
+    max_value=max(1,max(values, default=1))
     
     pygame.draw.line(
         panel, (140, 140, 140), (left,top), (left, bottom)

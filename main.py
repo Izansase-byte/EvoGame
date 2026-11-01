@@ -23,6 +23,9 @@ font = pygame.font.Font(None, 26)
 
 selected_creature = None
 
+fixed_step = 1 / 60
+accumulator = 0
+
 while running:
     dt = clock.tick(settings.FPS) / 1000.0
     
@@ -37,6 +40,7 @@ while running:
             elif event.key == pygame.K_r:
                 simulation = Simulation()
                 selected_creature = None
+                accumulator = 0
                 
             elif event.key == pygame.K_h:
                 show_panel = not show_panel
@@ -97,14 +101,11 @@ while running:
         break
 
     if not paused:
-        remaining_time = min(dt, 0.1) * simulation_speed
+        accumulator += min(dt, 0.1) * simulation_speed
         
-        while remaining_time > 0:
-            step = min(remaining_time, 1/60)
-            simulation.update(step)
-            remaining_time = max(0, remaining_time - step)
-        
-        
+        while accumulator >= fixed_step:
+            simulation.update(fixed_step)
+            accumulator -= fixed_step
         
     screen.fill(settings.BACKGROUND_COLOR)
     
@@ -184,6 +185,7 @@ while running:
         f'Simulation speed: X{simulation_speed} | Keys 1, 2, 3',
         f'Food/s: {1 / simulation.food_interval:.1f} | Up/Down',
         f'Maximum generation alive: {max_generation}',
+        f'Seed: {simulation.seed}'
         'PAUSE | Click SPACE to continue' if paused else 'SPACE: PAUSE | R to restart'
     ]
     
