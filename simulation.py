@@ -14,9 +14,14 @@ class Simulation:
         
         self.food = []
         self.food_timer = 0
+        self.elapsed_time = 0
+        self.stats_timer = 0
+        self.history = []
+        self.record_stats()
         
         for _ in range(settings.INITIAL_FOOD_COUNT):
             self.add_food()
+
         
     def add_food(self):
         self.food.append({
@@ -91,3 +96,32 @@ class Simulation:
             for creature in self.creatures
             if creature.energy > 0
         ]
+        self.elapsed_time += dt
+        self.stats_timer += dt
+
+        if self.stats_timer >= 1:
+            self.record_stats()
+            self.stats_timer %= 1
+        
+    def record_stats(self):
+        population = len(self.creatures)
+        
+        if population > 0:
+            average_speed = sum(
+                creature.speed for creature in self.creatures
+                ) / population
+            
+            average_vision = sum(
+                creature.vision for creature in self.creatures
+            ) / population
+
+        else:
+            average_speed = None
+            average_vision = None
+
+        self.history.append({
+            'time': self.elapsed_time,
+            'population': population,
+            'average_speed': average_speed,
+            'average_vision': average_vision
+        })

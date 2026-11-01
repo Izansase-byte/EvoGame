@@ -1,0 +1,76 @@
+import pygame
+
+def draw_population_chart(screen, history, font):
+    if len(history) < 2:
+        return
+    
+    width = 320
+    height = 160
+    
+    panel = pygame.Surface((width, height)), pygame.SRCALPHA
+    
+    panel.fill((20, 25, 30, 190))
+    
+    title = font.render('Things: ', True, (240, 240, 240))
+    panel.blit(title, (10,8))
+    
+    left = 40
+    right = width - 10
+    top = 40
+    bottom = height - 25
+    
+    samples = history[-120:]
+    
+    start_time = samples[0]['time']
+    end_time = samples[-1]['time']
+    duration = end_time - start_time
+
+    max_population = max(
+        1,
+        max(sample['population'] for sample in samples)
+    )
+    
+    pygame.draw.line(
+        panel, (140, 140, 140), (left,top), (left, bottom)
+    )
+    
+    pygame.draw.line(
+        panel, (140, 140, 140), (left,bottom), (right, bottom)
+    )
+    
+    points = []
+    
+    for sample in samples:
+        x = left + (
+            (sample['Time'] - start_time) / duration
+            ) * (right - left)
+        
+        y = bottom - (
+            sample['Population'] / max_population
+        ) * (bottom - top)
+        
+        points.append((round(x), round(y)))
+        
+    pygame.draw.lines(panel, (80, 200, 120), False, points, 2)
+    
+    maximum_label = font.render(
+        str(max_population), True, (200, 200, 200)
+    )
+    panel.blit(maximum_label, (5, top))
+    
+    zero_label = font.render('0', True, (200,200,200))
+    panel.blit(zero_label, (20, bottom - 12))
+    
+    time_label = font.render(
+        f'{start_time:.0f}-{end_time:.0f} s',
+        True,
+        (200,200,200)
+    )
+    panel.blit(time_label, (left, bottom + 3))
+    
+    screen.blit(
+        panel,
+        (screen.get_width() - width - 10,
+         screen.get_height() - height - 10
+         )
+    )

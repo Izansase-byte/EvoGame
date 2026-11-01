@@ -2,6 +2,7 @@ import pygame
 
 import settings
 from simulation import Simulation
+from charts import draw_population_chart
 
 pygame.init()
 
@@ -13,6 +14,7 @@ simulation = Simulation()
 running = True 
 paused = False
 show_panel = True
+show_chart = True
 
 font = pygame.font.Font(None, 26)
 
@@ -35,6 +37,9 @@ while running:
                 
             elif event.key == pygame.K_h:
                 show_panel = not show_panel
+                
+            elif event.key == pygame.K_g:
+                show_chart = not show_chart
                 
                 
         elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -155,6 +160,9 @@ while running:
         for index, line in enumerate(lines):
             text = font.render(line, True, (240, 240, 240))
             screen.blit(text, (10, 10 + index * 28))
+    
+    if show_chart:
+        draw_population_chart(screen, simulation.history, font)
     
     pygame.display.flip()
     
