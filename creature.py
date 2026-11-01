@@ -12,7 +12,7 @@ class Creature:
         self.speed = settings.INITIAL_SPEED
         self.generation = 0
 
-    def move(self, dt):
+    def move(self, dt, energy_multiplier=1.0):
         self.x += self.speed_x * dt
         self.y += self.speed_y * dt
         
@@ -38,4 +38,4 @@ class Creature:
             + 0.25 * (self.vision / settings.INITIAL_VISION)
         )
         
-        self.energy -= cost * dt
+        self.energy -= cost * energy_multiplier * dt

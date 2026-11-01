@@ -10,7 +10,12 @@ class Simulation:
     def __init__(self, seed=settings.RANDOM_SEED):
         self.seed = seed
         random.seed(seed)
-        
+        self.mutation_rate=0.10
+        self.energy_multiplier = 1.0
+        self.seasons_enabled = True
+
+        self.season_duration = settings.SEASON_DURATION
+        self.next_season_duration = settings.SEASON_DURATION
         
         self.creatures = [
             Creature()
@@ -43,17 +48,20 @@ class Simulation:
     
     def update(self, dt):
         
-        self.season_timer += dt
+        if self.seasons_enabled:
+            self.season_timer += dt
 
-        while self.season_timer >= settings.SEASON_DURATION:
-            self.season_timer -= settings.SEASON_DURATION
-            self.season_index = (
-                self.season_index + 1
-            ) % len(settings.SEASONS)
-            
-            self.season_name, self.food_interval = (
-                settings.SEASONS[self.season_index]
-            )
+            while self.season_timer >= self.season_duration:
+                self.season_timer -= self.season_duration
+                self.season_index = (
+                    self.season_index + 1
+                ) % len(settings.SEASONS)
+                
+                self.season_name, self.food_interval = (
+                    settings.SEASONS[self.season_index]
+                )
+                
+                self.season_duration = self.next_season_duration
         
         self.food_timer += dt
         while self.food_timer >= self.food_interval:
@@ -81,7 +89,7 @@ class Simulation:
                 creature.speed_x = (dx / closest_distance) * creature.speed
                 creature.speed_y = (dy / closest_distance) * creature.speed
             
-            creature.move(dt)
+            creature.move(dt,self.energy_multiplier)
             
         for creature in self.creatures:
             for food in self.food[:]:
@@ -128,8 +136,14 @@ class Simulation:
                 baby.speed *= random.uniform(0.9, 1.1)
                 baby.vision *= random.uniform(0.9, 1.1)
                 
-                baby.speed = max(20, min(120, baby.speed))
-                baby.vision = max(20, min(180, baby.vision))
+                baby.speed *= random.uniform(
+                    1-self.mutation_rate,
+                    1+self.mutation_rate
+                )
+                baby.vision *= random.uniform(
+                    1 - self.mutation_rate,
+                    1 + self.mutation_rate
+                )
                 
                 babies.append(baby)
         self.creatures.extend(babies)

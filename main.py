@@ -1,3 +1,8 @@
+from laboratory import Laboratory
+
+laboratory = Laboratory()
+show_laboratory = False
+
 import pygame
 
 import settings
@@ -38,6 +43,12 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
+        elif event.type == pygame.KEYDOWN and event.key == pygame.K_TAB:
+            show_laboratory = not show_laboratory
+
+        elif show_laboratory:
+            laboratory.handle_event(event, simulation)
 
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
@@ -109,7 +120,7 @@ while running:
     if not running:
         break
 
-    if not paused:
+    if not paused and not show_laboratory:
         accumulator += min(dt, 0.1) * simulation_speed
         
         while accumulator >= fixed_step:
@@ -197,7 +208,7 @@ while running:
         f'Maximum generation alive: {max_generation}',
         f'Seed: {simulation.seed}',
         f'Season: {simulation.season_name}',
-        f'Season change in: {max(0, settings.SEASON_DURATION - simulation.season_timer):.0f} s',
+        f'Season change in: {max(0, simulation.season_duration - simulation.season_timer):.0f} s',
         'V: change chart | G: hide chart',
         'PAUSE | Click SPACE to continue' if paused else 'SPACE: PAUSE | R to restart'
     ]
@@ -226,6 +237,9 @@ while running:
             screen, simulation.history, font, metric, title
         )
     
+    if show_laboratory:
+        laboratory.draw(screen, font, simulation)
+
     pygame.display.flip()
     
 pygame.quit()
