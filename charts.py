@@ -7,7 +7,7 @@ def draw_population_chart(screen, history, font):
     width = 320
     height = 160
     
-    panel = pygame.Surface((width, height)), pygame.SRCALPHA
+    panel = pygame.Surface((width, height), pygame.SRCALPHA)
     
     panel.fill((20, 25, 30, 190))
     
@@ -24,6 +24,8 @@ def draw_population_chart(screen, history, font):
     start_time = samples[0]['time']
     end_time = samples[-1]['time']
     duration = end_time - start_time
+    if duration <= 0:
+        return
 
     max_population = max(
         1,
@@ -42,11 +44,11 @@ def draw_population_chart(screen, history, font):
     
     for sample in samples:
         x = left + (
-            (sample['Time'] - start_time) / duration
+            (sample['time'] - start_time) / duration
             ) * (right - left)
         
         y = bottom - (
-            sample['Population'] / max_population
+            sample['population'] / max_population
         ) * (bottom - top)
         
         points.append((round(x), round(y)))
