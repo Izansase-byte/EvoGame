@@ -17,6 +17,12 @@ running = True
 paused = False
 show_panel = True
 show_chart = True
+chart_index = 0
+chart_options = [
+    ('population', 'Population'),
+    ('average_speed', 'Average speed'),
+    ('average_vision', 'Average vision')
+]
 simulation_speed = 1
 
 font = pygame.font.Font(None, 26)
@@ -48,6 +54,9 @@ while running:
             elif event.key == pygame.K_g:
                 show_chart = not show_chart
                 
+            elif event.key == pygame.K_v:
+                chart_index = (chart_index + 1) % len(chart_options)
+
             elif event.key == pygame.K_1:
                 simulation_speed = 1
                 
@@ -67,7 +76,7 @@ while running:
                 )
                 
             elif event.key == pygame.K_e:
-                export_folder = path(__file__).resolve().parent / 'exports'
+                export_folder = Path(__file__).resolve().parent / 'exports'
                 export_folder.mkdir(exist_ok=True)
                 
                 timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
@@ -185,7 +194,8 @@ while running:
         f'Simulation speed: X{simulation_speed} | Keys 1, 2, 3',
         f'Food/s: {1 / simulation.food_interval:.1f} | Up/Down',
         f'Maximum generation alive: {max_generation}',
-        f'Seed: {simulation.seed}'
+        f'Seed: {simulation.seed}',
+        'V: change chart | G: hide chart',
         'PAUSE | Click SPACE to continue' if paused else 'SPACE: PAUSE | R to restart'
     ]
     
@@ -208,7 +218,10 @@ while running:
             screen.blit(text, (10, 10 + index * 28))
     
     if show_chart:
-        draw_population_chart(screen, simulation.history, font)
+        metric, title = chart_options[chart_index]
+        draw_population_chart(
+            screen, simulation.history, font, metric, title
+        )
     
     pygame.display.flip()
     
