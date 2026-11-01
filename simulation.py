@@ -14,6 +14,7 @@ class Simulation:
         
         self.food = []
         self.food_timer = 0
+        self.food_interval = settings.FOOD_SPAWN_RATE
         self.elapsed_time = 0
         self.stats_timer = 0
         self.history = []
@@ -35,9 +36,9 @@ class Simulation:
     
     def update(self, dt):
         self.food_timer += dt
-        while self.food_timer >= settings.FOOD_SPAWN_RATE:
+        while self.food_timer >= self.food_interval:
             self.add_food()
-            self.food_timer -= settings.FOOD_SPAWN_RATE
+            self.food_timer -= self.food_interval
         
         for creature in self.creatures:
             target = None

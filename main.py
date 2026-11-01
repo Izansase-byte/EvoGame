@@ -15,6 +15,7 @@ running = True
 paused = False
 show_panel = True
 show_chart = True
+simulation_speed = 1
 
 font = pygame.font.Font(None, 26)
 
@@ -41,6 +42,23 @@ while running:
             elif event.key == pygame.K_g:
                 show_chart = not show_chart
                 
+            elif event.key == pygame.K_1:
+                simulation_speed = 1
+                
+            elif event.key == pygame.K_2:
+                simulation_speed = 2
+                
+            elif event.key == pygame.K_3:
+                simulation_speed = 5
+            
+            elif event.key == pygame.K_UP:
+                simulation.food_interval = max(
+                    0.1, simulation.food_interval /1.25)
+                
+            elif event.key == pygame.K_DOWN:
+                simulation.food_interval = min(
+                    5.0, simulation.food_interval * 1.25
+                )
                 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
@@ -67,7 +85,12 @@ while running:
         break
 
     if not paused:
-        simulation.update(dt)
+        remaining_time = min(dt, 0.1) * simulation_speed
+        
+        while remaining_time > 0:
+            step = min(remaining_time, 1/60)
+            simulation.update(step)
+            remaining_time = max(0, remaining_time - step)
         
         
         
@@ -141,6 +164,8 @@ while running:
         f'Average speed: {average_speed:1f}',
         f'Average vision: {average_vision:1f}',
         f'Food: {len(simulation.food)}',
+        f'Simulation speed: X{simulation_speed} | Keys 1, 2, 3',
+        f'Food/s: {1 / simulation.food_interval:.1f} | Up/Down',
         'PAUSE | Click SPACE to continue' if paused else 'SPACE: PAUSE | R to restart'
     ]
     
