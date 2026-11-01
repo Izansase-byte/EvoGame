@@ -148,14 +148,6 @@ class Simulation:
         
     def record_stats(self):
         
-        self.history.append({
-            'time': self.elapsed_time,
-            'population': population,
-            'average_speed': average_speed,
-            'average_vision': average_vision,
-            'season': self.season_name
-        })
-        
         population = len(self.creatures)
         
         if population > 0:
@@ -175,7 +167,8 @@ class Simulation:
             'time': self.elapsed_time,
             'population': population,
             'average_speed': average_speed,
-            'average_vision': average_vision
+            'average_vision': average_vision,
+            'season': self.season_name
         })
     
     def export_history(self, path):
@@ -183,7 +176,7 @@ class Simulation:
             'time',
             'population',
             'average_speed',
-            'average_vision'
+            'average_vision',
             'season'
         ]
         
