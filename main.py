@@ -12,6 +12,7 @@ clock = pygame.time.Clock()
 simulation = Simulation()
 running = True 
 paused = False
+show_panel = True
 
 font = pygame.font.Font(None, 26)
 
@@ -31,6 +32,11 @@ while running:
             elif event.key == pygame.K_r:
                 simulation = Simulation()
                 selected_creature = None
+                
+            elif event.key == pygame.K_h:
+                show_panel = not show_panel
+                
+                
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 x,y = event.pos
@@ -68,7 +74,7 @@ while running:
         else:
             pygame.draw.circle(
                 screen,
-                (100, 130, 180)
+                (100, 130, 180),
                 (
                     round(selected_creature.x),
                     round(selected_creature.y)
@@ -133,11 +139,22 @@ while running:
         'PAUSE | Click SPACE to continue' if paused else 'SPACE: PAUSE | R to restart'
     ]
     
-    pygame.draw.rect(screen,settings.BACKGROUND_COLOR, (0, 0, 420, 155))
+    if selected_creature is not None:
+        lines.extend([
+            f'Energy: {selected_creature.energy:1f} ',
+            f'Speed: {selected_creature.speed:1f} ',
+            f'Vision: {selected_creature.vision:1f} ',   
+        ])
+    if show_panel:
+        panel_height = 20 + len(lines) * 28
     
-    for index, line in enumerate(lines):
-        text = font.render(line, True, (240, 240, 240))
-        screen.blit(text, (10, 10 + index * 28))
+        panel = pygame.Surface((420, panel_height), pygame.SRCALPHA)
+        panel.fill((20,25,30,130))
+        screen.blit(panel, (0,0))
+    
+        for index, line in enumerate(lines):
+            text = font.render(line, True, (240, 240, 240))
+            screen.blit(text, (10, 10 + index * 28))
     
     pygame.display.flip()
     
