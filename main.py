@@ -164,7 +164,7 @@ while running:
         )
         
     pygame.display.set_caption(
-        f"Evogame | Things: {len(simulation.creatures)}"
+        f"EvoGame {settings.VERSION} | Things: {len(simulation.creatures)}"
     )
     
     population = len(simulation.creatures)
