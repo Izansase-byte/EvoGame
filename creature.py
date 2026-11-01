@@ -10,6 +10,7 @@ class Creature:
         self.vision = settings.INITIAL_VISION
         self.energy = settings.INITIAL_ENERGY
         self.speed = settings.INITIAL_SPEED
+        self.generation = 0
 
     def move(self, dt):
         self.x += self.speed_x * dt

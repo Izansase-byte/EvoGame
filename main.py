@@ -3,6 +3,8 @@ import pygame
 import settings
 from simulation import Simulation
 from charts import draw_population_chart
+from datetime import datetime
+from pathlib import Path
 
 pygame.init()
 
@@ -59,6 +61,16 @@ while running:
                 simulation.food_interval = min(
                     5.0, simulation.food_interval * 1.25
                 )
+                
+            elif event.key == pygame.K_e:
+                export_folder = path(__file__).resolve().parent / 'exports'
+                export_folder.mkdir(exist_ok=True)
+                
+                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
+                path = export_folder / f'experiment_{timestamp}.csv'
+                
+                simulation.export_history(path)
+                print(f'Stats saved in {path}')
                 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
@@ -159,6 +171,11 @@ while running:
         average_speed = 0
         average_vision = 0
         
+    max_generation = max(
+        (creature.generation for creature in simulation.creatures),
+        default = 0
+    )
+        
     lines = [
         f'Things: {population}',
         f'Average speed: {average_speed:1f}',
@@ -166,6 +183,7 @@ while running:
         f'Food: {len(simulation.food)}',
         f'Simulation speed: X{simulation_speed} | Keys 1, 2, 3',
         f'Food/s: {1 / simulation.food_interval:.1f} | Up/Down',
+        f'Maximum generation alive: {max_generation}',
         'PAUSE | Click SPACE to continue' if paused else 'SPACE: PAUSE | R to restart'
     ]
     
@@ -174,6 +192,7 @@ while running:
             f'Energy: {selected_creature.energy:1f} ',
             f'Speed: {selected_creature.speed:1f} ',
             f'Vision: {selected_creature.vision:1f} ',   
+            f'Generation: {selected_creature.generation}'
         ])
     if show_panel:
         panel_height = 20 + len(lines) * 28

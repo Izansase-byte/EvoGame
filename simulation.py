@@ -1,5 +1,6 @@
 import math
 import random
+import csv
 from copy import copy
 
 import settings
@@ -81,7 +82,29 @@ class Simulation:
         for creature in self.creatures:
             if creature.energy >= settings.REPRODUCTION_ENERGY_THRESHOLD:
                 creature.energy /= 2
+                
                 baby = copy(creature)
+                
+                baby.generation = creature.generation + 1
+                
+                angle = random.uniform(0, math.tau)
+                separation = settings.CREATURE_RADIUS * 2 + 1
+                
+                baby.x += math.cos(angle) * separation
+                baby.y += math.sin(angle) * separation
+                
+                baby.x = max(
+                    settings.CREATURE_RADIUS,
+                    min(settings.WIDTH - settings.CREATURE_RADIUS, baby.x)
+                )
+                
+                baby.y = max(
+                    settings.CREATURE_RADIUS,
+                    min(settings.HEIGHT - settings.CREATURE_RADIUS, baby.y)
+                )
+                
+                baby.speed_x = math.cos(angle) * baby.speed
+                baby.speed_y = math.sin(angle) * baby.speed
                 
                 baby.speed *= random.uniform(0.9, 1.1)
                 baby.vision *= random.uniform(0.9, 1.1)
@@ -126,3 +149,16 @@ class Simulation:
             'average_speed': average_speed,
             'average_vision': average_vision
         })
+    
+    def export_history(self, path):
+        fields = [
+            'time',
+            'population',
+            'average_speed',
+            'average_vision'
+        ]
+        
+        with open(path, 'w', newline='', encoding='utf-8') as file:
+            writer = csv.DictWriter(file, fieldnames = fields)
+            writer.writeheader()
+            writer.writerows(self.history)
