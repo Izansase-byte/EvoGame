@@ -19,7 +19,9 @@ class Simulation:
         
         self.food = []
         self.food_timer = 0
-        self.food_interval = settings.FOOD_SPAWN_RATE
+        self.season_index = 0
+        self.season_timer = 0
+        self.season_name, self.food_interval = settings.SEASONS[0]
         self.elapsed_time = 0
         self.stats_timer = 0
         self.history = []
@@ -40,6 +42,19 @@ class Simulation:
         })
     
     def update(self, dt):
+        
+        self.season_timer += dt
+
+        while self.season_timer >= settings.SEASON_DURATION:
+            self.season_timer -= settings.SEASON_DURATION
+            self.season_index = (
+                self.season_index + 1
+            ) % len(settings.SEASONS)
+            
+            self.season_name, self.food_interval = (
+                settings.SEASONS[self.season_index]
+            )
+        
         self.food_timer += dt
         while self.food_timer >= self.food_interval:
             self.add_food()

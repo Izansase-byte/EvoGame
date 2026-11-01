@@ -116,7 +116,8 @@ while running:
             simulation.update(fixed_step)
             accumulator -= fixed_step
         
-    screen.fill(settings.BACKGROUND_COLOR)
+    background_color = (settings.SEASONS_COLORS[simulation.season_index])
+    screen.fill(background_color)
     
     if selected_creature is not None:
         if selected_creature not in simulation.creatures:
@@ -195,6 +196,8 @@ while running:
         f'Food/s: {1 / simulation.food_interval:.1f} | Up/Down',
         f'Maximum generation alive: {max_generation}',
         f'Seed: {simulation.seed}',
+        f'Season: {simulation.season_name}',
+        f'Season change in: {max(0, settings.SEASON_DURATION - simulation.season_timer):.0f} s',
         'V: change chart | G: hide chart',
         'PAUSE | Click SPACE to continue' if paused else 'SPACE: PAUSE | R to restart'
     ]

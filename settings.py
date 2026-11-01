@@ -26,3 +26,19 @@ FOOD_ENERGY_VALUE = 30
 FOOD_SPAWN_RATE = 0.5 
 
 RANDOM_SEED = 42
+
+SEASON_DURATION = 30
+
+SEASONS = [
+    ('Primavera', 0.25),
+    ('Verano', 0,5),
+    ('Otoño', 1)
+    ('Invierno', 2)
+]
+
+SEASONS_COLORS = [
+    (22, 38, 28),
+    (38, 35, 20),
+    (40, 27, 22),
+    (22, 29, 42),
+]
