@@ -11,7 +11,7 @@ def draw_population_chart(screen, history, font, metric='population',title='Popu
     
     panel.fill((20, 25, 30, 190))
     
-    title_surface = font.render('title', True, (240, 240, 240))
+    title_surface = font.render(title, True, (240, 240, 240))
     panel.blit(title_surface, (10,8))
     
     left = 40
@@ -44,22 +44,27 @@ def draw_population_chart(screen, history, font, metric='population',title='Popu
     )
     
     points = []
-    
+
     for sample in samples:
+        value = sample[metric]
+
+        if value is None:
+            if len(points) >= 2:
+                pygame.draw.lines(panel, (80, 200, 120), False, points, 2)
+            points = []
+            continue
+
         x = left + (
             (sample['time'] - start_time) / duration
-            ) * (right - left)
-        
-        y = bottom - (
-            sample['population'] / max_population
-        ) * (bottom - top)
-        
+        ) * (right - left)
+        y = bottom - (value / max_value) * (bottom - top)
         points.append((round(x), round(y)))
-        
-    pygame.draw.lines(panel, (80, 200, 120), False, points, 2)
-    
+
+    if len(points) >= 2:
+        pygame.draw.lines(panel, (80, 200, 120), False, points, 2)
+
     maximum_label = font.render(
-        str(max_population), True, (200, 200, 200)
+        f"{max_value:.1f}", True, (200, 200, 200)
     )
     panel.blit(maximum_label, (5, top))
     
