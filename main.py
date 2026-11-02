@@ -1,7 +1,8 @@
 from storage import save_simulation, load_simulation
 from laboratory import Laboratory
-from charts import speed_histogram
-from charts import draw_speed_histogram
+from charts import draw_trait_histogram
+from charts import draw_event_log
+
 
 laboratory = Laboratory()
 show_laboratory = False
@@ -25,7 +26,8 @@ running = True
 paused = False
 show_panel = True
 show_chart = True
-show_histogram = False
+show_events = False
+histogram_mode = 0
 chart_index = 0
 chart_options = [
     ('population', 'Population'),
@@ -133,7 +135,10 @@ while running:
                 notice_until = pygame.time.get_ticks() + 5000
                 
             elif event.key == pygame.K_b:
-                show_histogram = not show_histogram
+                histogram_mode = (histogram_mode + 1) % 3
+            
+            elif event.key == pygame.K_n:
+                show_events = not show_events
                 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
@@ -279,8 +284,14 @@ while running:
             screen, simulation.history, font, metric, title
         )
     
-    if show_histogram:
-        draw_speed_histogram(screen, simulation.creatures, font)
+    if histogram_mode !=0:
+        metric = 'speed' if histogram_mode == 1 else 'vision'
+        draw_trait_histogram(
+            screen, simulation.creatures, font, metric
+        )
+    
+    if show_events:
+        draw_event_log(screen, simulation.events, font)
     
     if show_laboratory:
         laboratory.draw(screen, font, simulation)

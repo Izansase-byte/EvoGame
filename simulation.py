@@ -9,6 +9,7 @@ from creature import Creature
 class Simulation:
     def __init__(self, seed=settings.RANDOM_SEED):
         self.seed = seed
+        self.events = []
         self.rng = random.Random(seed)
         self.mutation_rate=0.10
         self.energy_multiplier = 1.0
@@ -46,7 +47,17 @@ class Simulation:
                 settings.HEIGHT - settings.FOOD_RADIUS)
         })
     
+    def add_event(self,message):
+        self.events.append({
+            'time': self.elapsed_time,
+            'message': message,
+        })
+        
+        self.events = self.events[-50:]
+    
     def update(self, dt):
+        
+        previous_population = len(self.creatures)
         
         if self.seasons_enabled:
             self.season_timer += dt
@@ -62,6 +73,10 @@ class Simulation:
                 )
                 
                 self.season_duration = self.next_season_duration
+        
+                self.add_event(
+                    f'Season changed: {self.season_name}'
+                )        
         
         self.food_timer += dt
         while self.food_timer >= self.food_interval:
@@ -152,12 +167,25 @@ class Simulation:
                 babies.append(baby)
         self.creatures.extend(babies)
         
+        if babies:
+            self.add_event(f'Born: {len(babies)}')
+            
+        population_before_deaths = len(self.creatures)
+        
         self.creatures = [
             creature
             for creature in self.creatures
             if creature.energy > 0
         ]
+        
+        deaths = population_before_deaths - len(self.creatures)
+        
+        if deaths:
+            self.add_event(f'Died: {deaths}')
+        
         self.elapsed_time += dt
+        if previous_population > 0 and not self.creatures:
+            self.add_event('Population extinct')
         self.stats_timer += dt
 
         if self.stats_timer >= 1:

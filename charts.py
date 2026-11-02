@@ -120,17 +120,28 @@ def draw_population_chart(screen, history, font, metric='population',title='Popu
          screen.get_height() - height - 10
          )
     )
-def speed_histogram(creatures):
+def trait_histogram(creatures,metric):
+    minimum = 20
+    maximum = 120 if metric == 'speed' else 180
+    step = (maximum - minimum) / 10
     counts = [0] * 10
     
     for creature in creatures:
-        index = int((creature.speed - 20)/ 10)
+        value = getattr(creature,metric)
+        index = int((value - minimum) / step)
         index = max(0, min(9, index))
         counts[index] += 1
         
     return counts
-def draw_speed_histogram(screen,creatures,font):
-    counts=speed_histogram(creatures)
+                
+    return counts
+def draw_trait_histogram(screen,creatures,font, metric):
+    counts=trait_histogram(creatures, metric)
+    maximum_value = 120 if metric == 'speed' else 180
+    step = (maximum_value - 20) / 10
+    trait_name = 'speed' if metric == 'speed' else 'vision'
+    
+    
     
     width = 360
     height = 220
@@ -138,7 +149,7 @@ def draw_speed_histogram(screen,creatures,font):
     panel.fill((20,25,30,210))
     
     title = font.render(
-        'Speed distribution',
+        f'{trait_name} distribution',
         True,
         (240,240,240)
     )
@@ -153,7 +164,7 @@ def draw_speed_histogram(screen,creatures,font):
     
     for index,count in enumerate(counts):
         bar_height = round(count/maximum *(bottom - top))
-        x= left = index * bar_width
+        x= left + index * bar_width
 
         if count > 0:
             pygame.draw.rect(
@@ -173,7 +184,7 @@ def draw_speed_histogram(screen,creatures,font):
             )
         
         speed_label = small_font.render(
-            str(20 + index * 10),
+            f'{20 + index * step:.0f}',
             True,
             (200,200,200)
         )
@@ -187,7 +198,7 @@ def draw_speed_histogram(screen,creatures,font):
     )
     
     caption = small_font.render(
-        'Speed: Intervals of 10: Finishing at 120',
+        f'{trait_name}: Intervals of {step:.0f}: Up to {maximum_value}',
         True,
         (200,200,200)
     )
@@ -197,3 +208,24 @@ def draw_speed_histogram(screen,creatures,font):
         panel,
         (screen.get_width() - width - 10, 10)
     )
+    
+def draw_event_log(screen, events, font):
+    width = 360
+    visible_events = events[-6:]
+    height = 45 + max(1, len(visible_events)) * 24
+    panel = pygame.Surface((width, height), pygame.SRCALPHA)
+    panel.fill((20, 25, 30, 210))
+    title = font.render('Recent events', True, (240, 240, 240))
+    panel.blit(title, (10, 10))
+    small_font = pygame.font.Font(None, 21)
+
+    if not visible_events:
+        text = small_font.render('No events yet', True, (180, 180, 180))
+        panel.blit(text, (10, 40))
+
+    for index, event in enumerate(visible_events):
+        message = f"{event['time']:.1f}s | {event['message']}"
+        text = small_font.render(message, True, (220, 220, 220))
+        panel.blit(text, (10, 40 + index * 24))
+
+    screen.blit(panel, (10, screen.get_height() - height - 10))
