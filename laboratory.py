@@ -101,12 +101,12 @@ class Laboratory:
         screen.blit(overlay, (0, 0))
         pygame.draw.rect(screen, (32, 38, 48), self.rect, border_radius=12)
         self.buttons.clear()
-        self.draw_text(screen, font, 'Laboratorio | Tab: cerrar', 20, 20)
+        self.draw_text(screen, font, 'Laboratory | Tab: close', 20, 20)
         rows = [
-            ('Mutación', f'{simulation.mutation_rate:.0%}', 'mutation'),
-            ('Coste de energía', f'x{simulation.energy_multiplier:.1f}', 'energy'),
-            ('Comida / segundo', f'{1 / simulation.food_interval:.1f}', 'food'),
-            ('Próxima estación', f'{simulation.next_season_duration:.0f} s', 'duration')
+            ('Mutation', f'{simulation.mutation_rate:.0%}', 'mutation'),
+            ('Energy cost', f'x{simulation.energy_multiplier:.1f}', 'energy'),
+            ('Food / second', f'{1 / simulation.food_interval:.1f}', 'food'),
+            ('Next season duration', f'{simulation.next_season_duration:.0f} s', 'duration')
         ]
         for index, (label, value, name) in enumerate(rows):
             y = self.rect.y + 70 + index * 50
@@ -115,15 +115,15 @@ class Laboratory:
             self.draw_button(screen, font, name + '_minus', '-', pygame.Rect(self.rect.x + 420, y, 40, 36))
             self.draw_button(screen, font, name + '_plus', '+', pygame.Rect(self.rect.x + 475, y, 40, 36))
         state = 'ON' if simulation.seasons_enabled else 'OFF'
-        self.draw_button(screen, font, 'toggle_seasons', f'Estaciones automáticas: {state}', pygame.Rect(self.rect.x + 20, self.rect.y + 280, 520, 40))
+        self.draw_button(screen, font, 'toggle_seasons', f'Automatic seasons: {state}', pygame.Rect(self.rect.x + 20, self.rect.y + 280, 520, 40))
         self.draw_button(
-            screen, font, 'reset_values', 'Restaurar valores',
+            screen, font, 'reset_values', 'Reset parameters',
             pygame.Rect(self.rect.x + 20, self.rect.y + 330, 520, 40)
         )
         preset_buttons = [
-            ('abundance', 'Abundancia'),
-            ('scarcity', 'Escasez'),
-            ('high_mutation', 'Mutación alta')
+            ('abundance', 'Abundance'),
+            ('scarcity', 'Scarcity'),
+            ('high_mutation', 'High mutation')
         ]
         for index, (name, label) in enumerate(preset_buttons):
             self.draw_button(
@@ -131,16 +131,16 @@ class Laboratory:
                 pygame.Rect(self.rect.x + 20 + index * 175, self.rect.y + 390, 170, 40)
             )
         small_font = pygame.font.Font(None, 21)
-        self.draw_text(screen, small_font, 'Los presets conservan la población y detienen las estaciones.', 20, 445)
-        self.draw_text(screen, small_font, 'Con estaciones ON, la comida se reajusta al cambiar de estación.', 20, 470)
+        self.draw_text(screen, small_font, 'Presets keep the population and disable seasons.', 20, 445)
+        self.draw_text(screen, small_font, 'With seasons ON, each new season resets the food rate.', 20, 470)
         if self.seed_value is None:
             self.seed_value = simulation.seed
-        self.draw_text(screen, font, f'Semilla nueva: {self.seed_value}', 20, 507)
+        self.draw_text(screen, font, f'New seed: {self.seed_value}', 20, 507)
         self.draw_button(screen, font, 'seed_minus', '-', pygame.Rect(self.rect.x + 420, self.rect.y + 500, 40, 36))
         self.draw_button(screen, font, 'seed_plus', '+', pygame.Rect(self.rect.x + 475, self.rect.y + 500, 40, 36))
-        self.draw_button(screen, font, 'restart_seed', 'Reiniciar con esta semilla', pygame.Rect(self.rect.x + 20, self.rect.y + 545, 520, 36))
-        self.draw_text(screen, small_font, 'Reiniciar borra la población y el historial actuales.', 20, 590)
-        self.draw_text(screen, small_font, 'El laboratorio pausa la simulación. Tab: cerrar.', 20, 620)
+        self.draw_button(screen, font, 'restart_seed', 'Restart with this seed', pygame.Rect(self.rect.x + 20, self.rect.y + 545, 520, 36))
+        self.draw_text(screen, small_font, 'Restarting clears the current population and history.', 20, 590)
+        self.draw_text(screen, small_font, 'The laboratory pauses the simulation. Tab: close.', 20, 620)
 
     def draw_button(self, screen, font, action, label, rect):
         self.buttons[action] = rect

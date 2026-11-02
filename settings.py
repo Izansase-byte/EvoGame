@@ -44,3 +44,12 @@ SEASONS_COLORS = [
     (40, 27, 22),
     (22, 29, 42),
 ]
+
+# Display names preserve compatibility with existing saves.
+def season_label(name):
+    return {
+        'Primavera': 'Spring',
+        'Verano': 'Summer',
+        'Otoño': 'Autumn',
+        'Invierno': 'Winter',
+    }.get(name, name)

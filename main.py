@@ -14,6 +14,13 @@ from simulation import Simulation
 from charts import draw_population_chart
 from datetime import datetime
 from pathlib import Path
+import sys
+
+DATA_DIR = (
+    Path.home() / 'EvoGame'
+    if getattr(sys, 'frozen', False)
+    else Path(__file__).resolve().parent
+)
 
 pygame.init()
 
@@ -96,42 +103,42 @@ while running:
                 
             elif event.key == pygame.K_s:
                 try:
-                    path = Path(__file__).resolve().parent / 'saves' / 'last.json'
+                    path = DATA_DIR / 'saves' / 'last.json'
                     save_simulation(simulation, path)
-                    notice = 'Experimento guardado. L: recuperar.'
+                    notice = 'Experiment saved. L: load.'
                 except (OSError, ValueError) as error:
-                    notice = 'No se pudo guardar. Consulta la terminal.'
-                    print(f'Error de guardado: {error}')
+                    notice = 'Could not save. Check the terminal.'
+                    print(f'Save error: {error}')
                 notice_until = pygame.time.get_ticks() + 5000
 
             elif event.key == pygame.K_l:
                 try:
-                    path = Path(__file__).resolve().parent / 'saves' / 'last.json'
+                    path = DATA_DIR / 'saves' / 'last.json'
                     restored = load_simulation(path)
                 except (OSError, ValueError) as error:
-                    notice = 'No se pudo cargar. Tu experimento sigue intacto.'
-                    print(f'Error de carga: {error}')
+                    notice = 'Could not load. Your experiment is unchanged.'
+                    print(f'Load error: {error}')
                 else:
                     simulation = restored
                     selected_creature = None
                     accumulator = 0
                     laboratory.seed_value = simulation.seed
                     paused = True
-                    notice = 'Experimento cargado y pausado. Espacio: continuar.'
+                    notice = 'Experiment loaded and paused. Space: resume.'
                 notice_until = pygame.time.get_ticks() + 5000
 
             elif event.key == pygame.K_e:
                 try:
-                    export_folder = Path(__file__).resolve().parent / 'exports'
+                    export_folder = DATA_DIR / 'exports'
                     export_folder.mkdir(exist_ok=True)
                     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
                     path = export_folder / f'experiment_{timestamp}.csv'
                     simulation.export_history(path)
-                    notice = 'CSV guardado en exports/'
-                    print(f'Estadísticas guardadas en: {path}')
+                    notice = 'CSV saved in exports/'
+                    print(f'Statistics saved to: {path}')
                 except OSError as error:
-                    notice = 'No se pudo guardar el CSV. Consulta la terminal.'
-                    print(f'Error al exportar: {error}')
+                    notice = 'Could not export CSV. Check the terminal.'
+                    print(f'Export error: {error}')
                 notice_until = pygame.time.get_ticks() + 5000
                 
             elif event.key == pygame.K_b:
@@ -251,12 +258,13 @@ while running:
         f'Food/s: {1 / simulation.food_interval:.1f} | Up / Down',
         f'Maximum generation alive: {max_generation}',
         f'Seed: {simulation.seed}',
-        f'Season: {simulation.season_name}',
+        f'Season: {settings.season_label(simulation.season_name)}',
         (f'Season change in: {max(0, simulation.season_duration - simulation.season_timer):.1f}s'
-         if simulation.seasons_enabled else 'Estaciones desactivadas'),
-        'Tab: laboratorio | E: CSV',
-        'S: guardar | L: cargar ultimo',
-        'V: change chart | G: hide chart | B: histogram',
+         if simulation.seasons_enabled else 'Seasons disabled'),
+        'Tab: laboratory | E: CSV',
+        'S: save | L: load last save',
+        'V: change chart | G: hide chart',
+        'B: histogram | N: event log',
         'PAUSE | Click SPACE to continue' if paused else 'SPACE: pause',
     ]
     

@@ -75,7 +75,7 @@ class Simulation:
                 self.season_duration = self.next_season_duration
         
                 self.add_event(
-                    f'Season changed: {self.season_name}'
+                    f'Season changed: {settings.season_label(self.season_name)}'
                 )        
         
         self.food_timer += dt

@@ -1,3 +1,4 @@
+import settings
 import pygame
 
 def draw_population_chart(screen, history, font, metric='population',title='Population'):
@@ -68,8 +69,8 @@ def draw_population_chart(screen, history, font, metric='population',title='Popu
             pygame.draw.line(
                 panel, color, (x, top), (x, bottom), 1
             )
-            
-            label = small_font.render(season, True, color)
+         
+            label = small_font.render(settings.season_label(season), True, color)
             
             label_x = max(
                 0,
