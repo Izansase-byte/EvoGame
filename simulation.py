@@ -9,7 +9,7 @@ from creature import Creature
 class Simulation:
     def __init__(self, seed=settings.RANDOM_SEED):
         self.seed = seed
-        random.seed(seed)
+        self.rng = random.Random(seed)
         self.mutation_rate=0.10
         self.energy_multiplier = 1.0
         self.seasons_enabled = True
@@ -18,7 +18,7 @@ class Simulation:
         self.next_season_duration = settings.SEASON_DURATION
         
         self.creatures = [
-            Creature()
+            Creature(self.rng)
             for _ in range(settings.INITIAL_POPULATION)
         ]
         
@@ -38,10 +38,10 @@ class Simulation:
         
     def add_food(self):
         self.food.append({
-            'x': random.randint(
+            'x': self.rng.randint(
                 settings.FOOD_RADIUS, 
                 settings.WIDTH - settings.FOOD_RADIUS),
-            'y': random.randint(
+            'y': self.rng.randint(
                 settings.FOOD_RADIUS,
                 settings.HEIGHT - settings.FOOD_RADIUS)
         })
@@ -114,7 +114,7 @@ class Simulation:
                 
                 baby.generation = creature.generation + 1
                 
-                angle = random.uniform(0, math.tau)
+                angle = self.rng.uniform(0, math.tau)
                 separation = settings.CREATURE_RADIUS * 2 + 1
                 
                 baby.x += math.cos(angle) * separation
@@ -133,18 +133,22 @@ class Simulation:
                 baby.speed_x = math.cos(angle) * baby.speed
                 baby.speed_y = math.sin(angle) * baby.speed
                 
-                baby.speed *= random.uniform(0.9, 1.1)
-                baby.vision *= random.uniform(0.9, 1.1)
+                baby.speed *= self.rng.uniform(0.9, 1.1)
+                baby.vision *= self.rng.uniform(0.9, 1.1)
                 
-                baby.speed *= random.uniform(
+                baby.speed *= self.rng.uniform(
                     1-self.mutation_rate,
                     1+self.mutation_rate
                 )
-                baby.vision *= random.uniform(
+                baby.vision *= self.rng.uniform(
                     1 - self.mutation_rate,
                     1 + self.mutation_rate
                 )
                 
+                baby.speed = max(20, min(120, baby.speed))
+                baby.vision = max(20, min(180, baby.vision))
+                baby.speed_x = math.cos(angle) * baby.speed
+                baby.speed_y = math.sin(angle) * baby.speed
                 babies.append(baby)
         self.creatures.extend(babies)
         
@@ -161,40 +165,44 @@ class Simulation:
             self.stats_timer %= 1
         
     def record_stats(self):
-        
         population = len(self.creatures)
-        
-        if population > 0:
-            average_speed = sum(
-                creature.speed for creature in self.creatures
-                ) / population
-            
-            average_vision = sum(
-                creature.vision for creature in self.creatures
-            ) / population
-
-        else:
-            average_speed = None
-            average_vision = None
+        average_speed = None
+        average_vision = None
+        if population:
+            average_speed = sum(c.speed for c in self.creatures) / population
+            average_vision = sum(c.vision for c in self.creatures) / population
 
         self.history.append({
             'time': self.elapsed_time,
             'population': population,
             'average_speed': average_speed,
             'average_vision': average_vision,
-            'season': self.season_name
+            'season': self.season_name,
+            'seed': self.seed,
+            'mutation_rate': self.mutation_rate,
+            'energy_multiplier': self.energy_multiplier,
+            'food_per_second': 1 / self.food_interval,
+            'seasons_enabled': self.seasons_enabled,
+            'season_duration': self.season_duration,
+            'next_season_duration': self.next_season_duration
         })
-    
+
     def export_history(self, path):
         fields = [
-            'time',
-            'population',
-            'average_speed',
-            'average_vision',
-            'season'
+            'time', 'population', 'average_speed', 'average_vision',
+            'season', 'seed', 'mutation_rate', 'energy_multiplier',
+            'food_per_second', 'seasons_enabled', 'season_duration',
+            'next_season_duration'
         ]
-        
+        # Include the current state, even when exporting while paused.
+        rows = list(self.history)
+        self.record_stats()
+        current = self.history.pop()
+        if rows and rows[-1]['time'] == current['time']:
+            rows[-1] = current
+        else:
+            rows.append(current)
         with open(path, 'w', newline='', encoding='utf-8') as file:
-            writer = csv.DictWriter(file, fieldnames = fields)
+            writer = csv.DictWriter(file, fieldnames=fields)
             writer.writeheader()
-            writer.writerows(self.history)
+            writer.writerows(rows)

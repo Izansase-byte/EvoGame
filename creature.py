@@ -2,11 +2,12 @@ import random
 import settings
 
 class Creature:
-    def __init__(self):
-        self.x = random.uniform(settings.CREATURE_RADIUS, settings.WIDTH - settings.CREATURE_RADIUS)
-        self.y = random.uniform(settings.CREATURE_RADIUS, settings.HEIGHT - settings.CREATURE_RADIUS)
-        self.speed_x = random.uniform(-100,100)
-        self.speed_y = random.uniform(-70,70)
+    def __init__(self, rng=None):
+        rng = rng if rng is not None else random.Random()
+        self.x = rng.uniform(settings.CREATURE_RADIUS, settings.WIDTH - settings.CREATURE_RADIUS)
+        self.y = rng.uniform(settings.CREATURE_RADIUS, settings.HEIGHT - settings.CREATURE_RADIUS)
+        self.speed_x = rng.uniform(-100,100)
+        self.speed_y = rng.uniform(-70,70)
         self.vision = settings.INITIAL_VISION
         self.energy = settings.INITIAL_ENERGY
         self.speed = settings.INITIAL_SPEED

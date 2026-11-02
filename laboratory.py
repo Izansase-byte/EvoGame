@@ -4,8 +4,9 @@ import pygame
 
 class Laboratory:
     def __init__(self):
-        self.rect = pygame.Rect(220, 120, 560, 440)
+        self.rect = pygame.Rect(220, 120, 560, 650)
         self.buttons = {}
+        self.seed_value = None
 
     def handle_event(self, event, simulation):
         if event.type != pygame.MOUSEBUTTONDOWN:
@@ -16,8 +17,53 @@ class Laboratory:
             if rect.collidepoint(event.pos):
                 self.apply(action, simulation)
                 break
+    
+    def apply_preset(self,name, simulation):
+        presets= {
+            'abundance': {
+                'mutation': 0.1,
+                'energy': 1.0,
+                'food_rate': 8.0
+            },
+            'scarcity': {
+                'mutation': 0.1,
+                'energy': 1.0,
+                'food_rate': 0.5
+            },
+            'high_mutation': {
+                'mutation': 0.3,
+                'energy' : 1.0,
+                'food_rate':4.0
+                
+            }
+        }
+        
+        preset = presets[name]
+        
+        simulation.mutation_rate = preset['mutation']
+        simulation.energy_multiplier = preset['energy']
+        simulation.food_interval = 1 / preset['food_rate']
+        simulation.food_timer = 0
+        simulation.seasons_enabled = False
 
+    
     def apply(self, action, simulation):
+        if self.seed_value is None:
+            self.seed_value = simulation.seed
+        if action == 'seed_minus':
+            self.seed_value = max(0, self.seed_value - 1)
+            return
+        if action == 'seed_plus':
+            self.seed_value = min(999999, self.seed_value + 1)
+            return
+        if action == 'restart_seed':
+            simulation.__init__(seed=self.seed_value)
+            return
+
+        if action.startswith('preset_'):
+            self.apply_preset(action.removeprefix('preset_'), simulation)
+            return
+
         if action == 'mutation_minus':
             simulation.mutation_rate = max(0, round(simulation.mutation_rate - 0.01, 2))
         elif action == 'mutation_plus':
@@ -74,7 +120,27 @@ class Laboratory:
             screen, font, 'reset_values', 'Restaurar valores',
             pygame.Rect(self.rect.x + 20, self.rect.y + 330, 520, 40)
         )
-        self.draw_text(screen, font, 'La simulación se pausa con este panel abierto.', 20, 395)
+        preset_buttons = [
+            ('abundance', 'Abundancia'),
+            ('scarcity', 'Escasez'),
+            ('high_mutation', 'Mutación alta')
+        ]
+        for index, (name, label) in enumerate(preset_buttons):
+            self.draw_button(
+                screen, font, 'preset_' + name, label,
+                pygame.Rect(self.rect.x + 20 + index * 175, self.rect.y + 390, 170, 40)
+            )
+        small_font = pygame.font.Font(None, 21)
+        self.draw_text(screen, small_font, 'Los presets conservan la población y detienen las estaciones.', 20, 445)
+        self.draw_text(screen, small_font, 'Con estaciones ON, la comida se reajusta al cambiar de estación.', 20, 470)
+        if self.seed_value is None:
+            self.seed_value = simulation.seed
+        self.draw_text(screen, font, f'Semilla nueva: {self.seed_value}', 20, 507)
+        self.draw_button(screen, font, 'seed_minus', '-', pygame.Rect(self.rect.x + 420, self.rect.y + 500, 40, 36))
+        self.draw_button(screen, font, 'seed_plus', '+', pygame.Rect(self.rect.x + 475, self.rect.y + 500, 40, 36))
+        self.draw_button(screen, font, 'restart_seed', 'Reiniciar con esta semilla', pygame.Rect(self.rect.x + 20, self.rect.y + 545, 520, 36))
+        self.draw_text(screen, small_font, 'Reiniciar borra la población y el historial actuales.', 20, 590)
+        self.draw_text(screen, small_font, 'El laboratorio pausa la simulación. Tab: cerrar.', 20, 620)
 
     def draw_button(self, screen, font, action, label, rect):
         self.buttons[action] = rect

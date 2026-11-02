@@ -120,3 +120,80 @@ def draw_population_chart(screen, history, font, metric='population',title='Popu
          screen.get_height() - height - 10
          )
     )
+def speed_histogram(creatures):
+    counts = [0] * 10
+    
+    for creature in creatures:
+        index = int((creature.speed - 20)/ 10)
+        index = max(0, min(9, index))
+        counts[index] += 1
+        
+    return counts
+def draw_speed_histogram(screen,creatures,font):
+    counts=speed_histogram(creatures)
+    
+    width = 360
+    height = 220
+    panel = pygame.Surface((width, height), pygame.SRCALPHA)
+    panel.fill((20,25,30,210))
+    
+    title = font.render(
+        'Speed distribution',
+        True,
+        (240,240,240)
+    )
+    panel.blit(title, (10,10))
+    
+    left = 35
+    top = 50
+    bottom = 175
+    bar_width = 30
+    maximum = max(1, max(counts))
+    small_font = pygame.font.Font(None, 18)
+    
+    for index,count in enumerate(counts):
+        bar_height = round(count/maximum *(bottom - top))
+        x= left = index * bar_width
+
+        if count > 0:
+            pygame.draw.rect(
+                panel,
+                (80, 180, 220),
+                (x+2, bottom - bar_height, bar_width - 4, bar_height)
+            )
+            
+            label = small_font.render(
+                str(count), True, (240,240,240)
+            )
+            panel.blit(
+                label,
+                label.get_rect(
+                    midbottom=(x + bar_width //2, bottom - bar_height -2)
+                )
+            )
+        
+        speed_label = small_font.render(
+            str(20 + index * 10),
+            True,
+            (200,200,200)
+        )
+        panel.blit(speed_label, (x, bottom + 5))
+        
+    pygame.draw.line(
+        panel,
+        (160,160,160),
+        (left,bottom),
+        (left + 10 * bar_width, bottom)
+    )
+    
+    caption = small_font.render(
+        'Speed: Intervals of 10: Finishing at 120',
+        True,
+        (200,200,200)
+    )
+    panel.blit(caption, (10,200))
+    
+    screen.blit(
+        panel,
+        (screen.get_width() - width - 10, 10)
+    )

@@ -1,0 +1,3 @@
+time,population,average_speed,average_vision,season,seed,mutation_rate,energy_multiplier,food_per_second,seasons_enabled,season_duration,next_season_duration
+0,20,90.0,100.0,Primavera,43,0.1,1.0,4.0,True,30,30
+0.11666666666666665,20,90.0,100.0,Primavera,43,0.1,1.0,4.0,True,30,30

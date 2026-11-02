@@ -1,4 +1,7 @@
+from storage import save_simulation, load_simulation
 from laboratory import Laboratory
+from charts import speed_histogram
+from charts import draw_speed_histogram
 
 laboratory = Laboratory()
 show_laboratory = False
@@ -22,6 +25,7 @@ running = True
 paused = False
 show_panel = True
 show_chart = True
+show_histogram = False
 chart_index = 0
 chart_options = [
     ('population', 'Population'),
@@ -33,6 +37,8 @@ simulation_speed = 1
 font = pygame.font.Font(None, 26)
 
 selected_creature = None
+notice = ''
+notice_until = 0
 
 fixed_step = 1 / 60
 accumulator = 0
@@ -55,7 +61,7 @@ while running:
                 paused = not paused
 
             elif event.key == pygame.K_r:
-                simulation = Simulation()
+                simulation = Simulation(seed=simulation.seed)
                 selected_creature = None
                 accumulator = 0
                 
@@ -86,15 +92,48 @@ while running:
                     5.0, simulation.food_interval * 1.25
                 )
                 
+            elif event.key == pygame.K_s:
+                try:
+                    path = Path(__file__).resolve().parent / 'saves' / 'last.json'
+                    save_simulation(simulation, path)
+                    notice = 'Experimento guardado. L: recuperar.'
+                except (OSError, ValueError) as error:
+                    notice = 'No se pudo guardar. Consulta la terminal.'
+                    print(f'Error de guardado: {error}')
+                notice_until = pygame.time.get_ticks() + 5000
+
+            elif event.key == pygame.K_l:
+                try:
+                    path = Path(__file__).resolve().parent / 'saves' / 'last.json'
+                    restored = load_simulation(path)
+                except (OSError, ValueError) as error:
+                    notice = 'No se pudo cargar. Tu experimento sigue intacto.'
+                    print(f'Error de carga: {error}')
+                else:
+                    simulation = restored
+                    selected_creature = None
+                    accumulator = 0
+                    laboratory.seed_value = simulation.seed
+                    paused = True
+                    notice = 'Experimento cargado y pausado. Espacio: continuar.'
+                notice_until = pygame.time.get_ticks() + 5000
+
             elif event.key == pygame.K_e:
-                export_folder = Path(__file__).resolve().parent / 'exports'
-                export_folder.mkdir(exist_ok=True)
+                try:
+                    export_folder = Path(__file__).resolve().parent / 'exports'
+                    export_folder.mkdir(exist_ok=True)
+                    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
+                    path = export_folder / f'experiment_{timestamp}.csv'
+                    simulation.export_history(path)
+                    notice = 'CSV guardado en exports/'
+                    print(f'Estadísticas guardadas en: {path}')
+                except OSError as error:
+                    notice = 'No se pudo guardar el CSV. Consulta la terminal.'
+                    print(f'Error al exportar: {error}')
+                notice_until = pygame.time.get_ticks() + 5000
                 
-                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
-                path = export_folder / f'experiment_{timestamp}.csv'
-                
-                simulation.export_history(path)
-                print(f'Stats saved in {path}')
+            elif event.key == pygame.K_b:
+                show_histogram = not show_histogram
                 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
@@ -209,8 +248,12 @@ while running:
         f'Seed: {simulation.seed}',
         f'Season: {simulation.season_name}',
         f'Season change in: {max(0, simulation.season_duration - simulation.season_timer):.0f} s',
+        f'Speeds: {speed_histogram(simulation.creatures)}',
+        if simulation.seasons_enabled else 'Estaciones desactivadas',
+        'Tab: laboratorio | E: CSV',
+        'S: guardar | L: cargar último',
         'V: change chart | G: hide chart',
-        'PAUSE | Click SPACE to continue' if paused else 'SPACE: PAUSE | R to restart'
+        'PAUSE | Click SPACE to continue' if paused else 'SPACE: PAUSE | R to restart',
     ]
     
     if selected_creature is not None:
@@ -237,8 +280,18 @@ while running:
             screen, simulation.history, font, metric, title
         )
     
+    if show_histogram:
+        draw_speed_histogram(screen, simulation.creatures, font)
+    
     if show_laboratory:
         laboratory.draw(screen, font, simulation)
+
+    if notice and pygame.time.get_ticks() < notice_until:
+        notice_font = pygame.font.Font(None, 23)
+        text = notice_font.render(notice, True, (240, 240, 240))
+        box = text.get_rect(midbottom=(screen.get_width() // 2, screen.get_height() - 12))
+        pygame.draw.rect(screen, (35, 50, 65), box.inflate(20, 12), border_radius=6)
+        screen.blit(text, box)
 
     pygame.display.flip()
     
