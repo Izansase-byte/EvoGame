@@ -239,21 +239,20 @@ while running:
         
     lines = [
         f'Things: {population}',
-        f'Average speed: {average_speed:1f}',
-        f'Average vision: {average_vision:1f}',
+        f'Average speed: {average_speed:.1f}',
+        f'Average vision: {average_vision:.1f}',
         f'Food: {len(simulation.food)}',
         f'Simulation speed: X{simulation_speed} | Keys 1, 2, 3',
-        f'Food/s: {1 / simulation.food_interval:.1f} | Up/Down',
+        f'Food/s: {1 / simulation.food_interval:.1f} | Up / Down',
         f'Maximum generation alive: {max_generation}',
         f'Seed: {simulation.seed}',
         f'Season: {simulation.season_name}',
-        f'Season change in: {max(0, simulation.season_duration - simulation.season_timer):.0f} s',
-        f'Speeds: {speed_histogram(simulation.creatures)}',
-        if simulation.seasons_enabled else 'Estaciones desactivadas',
+        (f'Season change in: {max(0, simulation.season_duration - simulation.season_timer):.1f}s'
+         if simulation.seasons_enabled else 'Estaciones desactivadas'),
         'Tab: laboratorio | E: CSV',
-        'S: guardar | L: cargar último',
-        'V: change chart | G: hide chart',
-        'PAUSE | Click SPACE to continue' if paused else 'SPACE: PAUSE | R to restart',
+        'S: guardar | L: cargar ultimo',
+        'V: change chart | G: hide chart | B: histogram',
+        'PAUSE | Click SPACE to continue' if paused else 'SPACE: pause',
     ]
     
     if selected_creature is not None:
